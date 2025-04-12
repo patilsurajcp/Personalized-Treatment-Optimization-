@@ -1,0 +1,376 @@
+{% extends 'layout.html' %} {% block content %}
+<style>
+  .diagnosis-result {
+    text-align: left;
+  }
+  .diagnosis-result p {
+    margin-bottom: 8px;
+  }
+  .diagnosis-result ul,
+  .diagnosis-result ol {
+    margin-top: 4px;
+    margin-bottom: 12px;
+    padding-left: 20px;
+  }
+  .diagnosis-result li {
+    margin-bottom: 4px;
+  }
+  .diagnosis-result strong {
+    color: #2563eb;
+  }
+  .diagnosis-highlight {
+    color: #ef4444;
+    font-weight: bold;
+  }
+  .question-container {
+    margin-top: 12px;
+    padding: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background-color: #f3f4f6;
+  }
+  .question {
+    margin-bottom: 10px;
+    color: #1e40af;
+  }
+  .answer-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  .yes-btn,
+  .no-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 80px;
+    margin: 0 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  }
+  .yes-btn {
+    background-color: #10b981;
+    color: white;
+    border: none;
+  }
+  .no-btn {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+  }
+  .yes-btn:hover {
+    background-color: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  .no-btn:hover {
+    background-color: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  .yes-btn:focus,
+  .no-btn:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+  .yes-btn:disabled,
+  .no-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+</style>
+<div
+  class="flex flex-col h-[90vh] bg-gray-400 text-black rounded-lg rounded-b-none"
+>
+  <!-- Chat Header -->
+  <div class="bg-white p-4 shadow-md rounded-lg rounded-b-none">
+    <h1 class="text-xl font-bold">AI Health Assistant</h1>
+  </div>
+
+  <!-- Chat Messages Container -->
+  <div id="chat-messages" class="flex-grow overflow-y-auto p-4 space-y-4">
+    <!-- Welcome Message -->
+    <div class="flex items-start">
+      <div class="flex-shrink-0 mr-3">
+        <div
+          class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+      </div>
+      <div class="bg-blue-100 rounded-lg p-3 max-w-3xl">
+        <p>
+          Hello! I'm your AI health assistant. Please describe your symptoms,
+          and I'll analyze them using a neural network model to suggest possible
+          conditions.
+        </p>
+        <p>For example, you can try:</p>
+        <ul class="list-disc pl-5 mt-2">
+          <li>"I have a headache and fever"</li>
+          <li>"My joints are aching and I feel tired"</li>
+          <li>"I've been experiencing chest pain and shortness of breath"</li>
+        </ul>
+        <p class="mt-2">
+          <em
+            >Note: This is not a medical diagnosis. Please consult a healthcare
+            professional for proper medical advice.</em
+          >
+        </p>
+      </div>
+    </div>
+
+    <!-- Messages will be added here dynamically -->
+  </div>
+
+  <!-- Chat Input -->
+  <div class="bg-white p-4 border-t rounded-lg rounded-t-none">
+    <form id="chat-form" class="flex items-center">
+      <input
+        type="text"
+        id="user-input"
+        class="flex-grow border rounded-l-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Type your message here..."
+      />
+      <button
+        type="submit"
+        class="bg-blue-500 text-white p-2 rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+          />
+        </svg>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const chatForm = document.getElementById("chat-form");
+    const userInput = document.getElementById("user-input");
+    const chatMessages = document.getElementById("chat-messages");
+
+    chatForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const message = userInput.value.trim();
+      if (message === "") return;
+
+      // Add user message to chat
+      addMessage(message, "user");
+
+      // Clear input field
+      userInput.value = "";
+
+      // Send message to backend and get response
+      sendMessageToBackend(message);
+    });
+
+    // Make this function globally accessible
+    window.answerQuestion = function (symptom, answer, diagnosis) {
+      try {
+        console.log("Answer clicked:", symptom, answer);
+
+        // Find the specific question container for this symptom
+        const questionContainer = document.querySelector(
+          `.question-container[data-symptom="${symptom}"]`
+        );
+
+        if (questionContainer) {
+          // Only disable buttons in this specific question container
+          const buttons = questionContainer.querySelectorAll(
+            ".answer-buttons button"
+          );
+          buttons.forEach((btn) => {
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+            btn.style.cursor = "not-allowed";
+          });
+        } else {
+          console.warn("Question container not found for symptom:", symptom);
+        }
+
+        // Add user's answer to chat
+        const displayAnswer = answer === "yes" ? "Yes" : "No";
+        addMessage(displayAnswer, "user");
+
+        // Create a simplified diagnosis object with only the essential properties
+        const simplifiedDiagnosis = {
+          question_count: diagnosis.question_count || 0,
+          initial_symptoms: diagnosis.initial_symptoms || [],
+          confirmed_symptoms: diagnosis.confirmed_symptoms || [],
+          denied_symptoms: diagnosis.denied_symptoms || [],
+          asked_symptoms: diagnosis.asked_symptoms || [],
+        };
+
+        // Format the message for the backend
+        const message = `ANSWER:${symptom}:${answer}:${JSON.stringify(
+          simplifiedDiagnosis
+        )}`;
+
+        // Send to backend
+        sendMessageToBackend(message);
+      } catch (error) {
+        console.error("Error in answerQuestion:", error);
+        addMessage(
+          "Sorry, there was an error processing your answer. Please try again with a new question.",
+          "ai"
+        );
+      }
+    };
+
+    function addMessage(message, sender) {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = "flex items-start";
+
+      if (sender === "user") {
+        messageDiv.innerHTML = `
+                    <div class="flex-grow"></div>
+                    <div class="bg-green-100 rounded-lg p-3 max-w-3xl">
+                        <p>${message}</p>
+                    </div>
+                    <div class="flex-shrink-0 ml-3">
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                `;
+      } else {
+        messageDiv.innerHTML = `
+                    <div class="flex-shrink-0 mr-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="bg-blue-100 rounded-lg p-3 max-w-3xl">
+                        <div>${message}</div>
+                    </div>
+                `;
+      }
+
+      chatMessages.appendChild(messageDiv);
+
+      // Scroll to bottom
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function sendMessageToBackend(message) {
+      // Show loading indicator
+      const loadingDiv = document.createElement("div");
+      loadingDiv.className = "flex items-start";
+      loadingDiv.innerHTML = `
+                <div class="flex-shrink-0 mr-3">
+                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="bg-blue-100 rounded-lg p-3 max-w-3xl">
+                    <p>Thinking...</p>
+                </div>
+            `;
+      chatMessages.appendChild(loadingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Make AJAX request to backend
+      fetch('{% url "ask_query" %}', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify({ message: message }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          // Remove loading indicator
+          chatMessages.removeChild(loadingDiv);
+
+          // Add AI response
+          addMessage(data.response, "ai");
+
+          // If this is a question response, focus on the buttons
+          setTimeout(() => {
+            const buttons = document.querySelectorAll(".answer-buttons button");
+            if (buttons.length > 0) {
+              buttons[0].focus();
+
+              // Add keyboard event listeners for yes/no buttons
+              const keyHandler = function (e) {
+                if (e.key === "y" || e.key === "Y") {
+                  buttons[0].click(); // Yes button
+                  document.removeEventListener("keydown", keyHandler);
+                } else if (e.key === "n" || e.key === "N") {
+                  buttons[1].click(); // No button
+                  document.removeEventListener("keydown", keyHandler);
+                }
+              };
+
+              document.addEventListener("keydown", keyHandler);
+            }
+          }, 100);
+        })
+        .catch((error) => {
+          // Remove loading indicator
+          chatMessages.removeChild(loadingDiv);
+
+          // Add error message
+          addMessage(
+            "Sorry, there was an error processing your request. Please try again with a different description of your symptoms.",
+            "ai"
+          );
+          console.error("Error:", error);
+        });
+    }
+
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+  });
+</script>
+{% endblock content %}
