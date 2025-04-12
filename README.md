@@ -54,3 +54,13 @@ Pandas, Scikit-learn</li>
 <li>EHR data formats like FHIR</li>
 </ol>
     
+<div class="future"><h2>🚀 Future Enhancements:</h2>
+<ul><li>Integrate causal inference to better understand treatment effects
+</li>
+<li>Use multi-agent RL for co-treatment planning</li>
+<li>Real-time decision support integration in hospital systems</li>
+</div>
+
+
+<div class="output">
+<img src='hackathon_op.png'>
