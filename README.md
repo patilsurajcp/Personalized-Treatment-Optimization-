@@ -63,4 +63,16 @@ Pandas, Scikit-learn</li>
 
 
 <div class="output">
+<h2>Machine Learning Output</h2>
 <img src='hackathon_op.png'>
+</div>
+
+
+<div class="datasets">
+<ol><li>dataset.csv</li>
+<li>Training.csv</li>
+<li>testing.csv</li>
+<li>Symptom_decription.csv</li>
+<li>Symptom_precaution.csv</li>
+<li>Symptom_severity.csv</li></ol>
+</div>
