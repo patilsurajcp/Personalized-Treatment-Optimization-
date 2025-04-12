@@ -26,8 +26,30 @@ It learns optimal policies based on feedback (rewards) from the environment (pat
 
 <div class="methadology">
 <h2>⚙️ Methodology:</h2>
-<ol><h2>Data collection</h2></ol>
-<ul>Electronic Health Records (EHRs)</ul>
-<ul>Patient demographics, symptoms, diagnoses, treatments, outcomes</ul>
-<ul>Time-series health data</ul>
+<ol><li><h2>Data collection</h2></li></ol>
+<ul><li>Electronic Health Records (EHRs)</li>
+<li>Patient demographics, symptoms, diagnoses, treatments, outcomes</li>
+<li>Time-series health data</li></ul>
 
+<ol><li><h2>State Representation</h2></li></ol>
+<ul><li>Define the state as the current patient status: lab results, vitals, comorbidities, etc.</li>
+<li>Use feature engineering or neural networks (e.g., LSTM for temporal info) to encode states</li></ul>
+
+<ol><li><h2>Reward Function</h2></li></ol>
+<ul><li>Outcome-based: improvement in health, survival, reduction in symptoms, side effects.</li>
+<li>Needs to be carefully designed to reflect clinical goals</li></ul>
+
+
+<ol><h2>Model</h2></ol>
+<ul><li>Q-Learning / Deep Q-Networks (DQN)</li>
+<li>Policy Gradient Methods</li>
+<li>offline RL</li></ul>
+
+
+<div class="technologies"><h2>🧪 Technologies & Tools:</h2>
+<ol><li>Python, TensorFlow / PyTorch
+Pandas, Scikit-learn</li>
+<li>Pandas, Scikit-learn</li>
+<li>EHR data formats like FHIR</li>
+</ol>
+    
