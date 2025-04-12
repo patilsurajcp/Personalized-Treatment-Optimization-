@@ -77,3 +77,8 @@ Pandas, Scikit-learn</li>
 <li>Symptom_precaution.csv</li>
 <li>Symptom_severity.csv</li></ol>
 </div>
+
+
+<div class="user interface">
+<h1>User interfaces<h1>
+<img src='ui_hackathon.jpg'>
